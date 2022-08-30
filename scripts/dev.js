@@ -8,7 +8,7 @@ const args = require('minimist')(process.argv.slice(2))
 
 
 const target = args._[0] || 'reactivity'
-const format = args.f || 'global'
+const format = args.f || 'esm-bundler'
 
 // 开发环境只打包某一个
 const pkg = require(resolve(__dirname, `../packages/${target}/package.json`))

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<script>
+  const target = {
+    name: 'Jack',
+    get alias(){
+      return this.name
+    }
+  }
+
+  const proxy = new Proxy(target, {
+    get(target, key, receiver) {
+      console.log(key);
+      return target[key]
+    },
+    set(target, key, value, receiver) {
+      target[key] = value
+      return true
+    }
+  })
+
+  proxy.alias  // 只打印了 alias  key
+
+  const proxy2 = new Proxy(target, {
+    get(target, key, receiver) {
+      console.log(key);
+      return Reflect.get(target, key, receiver)
+    },
+    set(target, key, value, receiver) {
+      // target[key] = value
+      return Reflect.set(target, key, value, receiver)
+    }
+  })
+
+
+  proxy2.alias
+  // 打印两次
+  // alias
+  // name
+
+</script>
+</body>
+</html>
