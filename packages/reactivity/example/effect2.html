@@ -19,11 +19,12 @@
       })
 
       setTimeout(() => {
+        // 更新 flag 重新渲染 DOM 变成 Tom
         state.flag = false
 
         setTimeout(() => {
 
-          // 修改id 原则上 DOM 不更新
+          // 此时 修改id 原则上 DOM 不更新
           state.id = 100
         }, 2000)
 

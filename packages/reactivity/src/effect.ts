@@ -3,21 +3,26 @@ import { EffectScope } from './EffectScope'
 export type EffectScheduler = (...args: any[]) => any
 
 export interface ReactiveEffectOptions {
+  // 是否懒加载，如果是true调用effect不会立即执行监听函数，由用户手动触发
   lazy?: boolean
+
+  // 被触发引起effect要重新收集依赖时的调度器
+  // 当传入时effect收到触发时不会重新执行监听函数而是执行这个function，由用户自己调度。
   scheduler?: EffectScheduler
   scope?: EffectScope
   allowRecurse?: boolean
+
+  // 当effect被stop（停止监听）时的钩子
   onStop?: () => void
 }
 
 export let activeEffect: ReactiveEffect | undefined = undefined
 
 function cleanupEffect(effect) {
-  const { deps } = effect
-  for (let i = 0; i < deps.length; i++) {
+  effect.deps.forEach(dep => {
     // 解除effect，重新依赖收集
-    deps[i].delete(effect)
-  }
+    dep.delete(effect)
+  })
   effect.deps.length = 0
 }
 
@@ -63,6 +68,11 @@ export class ReactiveEffect {
       // 默认执行一次
       return this.fn()
     } finally {
+      // effect(() => {
+      //   console.log('render1')
+      //   state.name
+      // })
+      // effect 内部函数体执行后才会执行到这里
       activeEffect = this.parent
     }
   }
@@ -77,6 +87,7 @@ export class ReactiveEffect {
 }
 
 export function effect<T = any>(fn: () => T, options?: ReactiveEffectOptions) {
+  // 实例化
   const _effect = new ReactiveEffect(fn)
   _effect.run()
 }
@@ -96,6 +107,19 @@ export function effect<T = any>(fn: () => T, options?: ReactiveEffectOptions) {
 //     })
 // })
 
+/**
+ {对象：{ 属性 :[ dep, dep ]}}
+
+ const target1 = { flag: true, name: 'Tom', id: 1 }
+
+ targetMap
+ {
+    target1: {
+      name: [ReactiveEffect, ReactiveEffect]
+      id: [ReactiveEffect, ReactiveEffect]
+    }
+ }
+ */
 const targetMap = new WeakMap()
 
 /**
