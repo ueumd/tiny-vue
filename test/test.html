@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<script type="module">
+  var reactiveMap = new WeakMap()
+  var shallowReactiveMap = new WeakMap()
+  var readonlyMap = new WeakMap()
+  var shallowReadonlyMap = new WeakMap()
+  function isReadonly(value) {
+    return !!value['__v_isReadonly' /* ReactiveFlags.IS_READONLY */]
+    // return !!(value && (value as Target)[ReactiveFlags.IS_SHALLOW])
+  }
+
+  const state = {
+    '__v_isReadonly': true
+  }
+
+  function test() {
+    let s = isReadonly(state)
+    console.log(s)
+  }
+
+  test()
+
+</script>
+</body>
+</html>

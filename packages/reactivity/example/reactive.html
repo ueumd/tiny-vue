@@ -10,11 +10,26 @@
 
       const data = {name: 'Tom', id: 1}
 
+      // const state1 = reactive(data)
+      // const state2 = reactive(data)
+
+      /**
+       源码中缓存了 所以是同一个代理对象
+       const existingProxy = reactiveMap.get(target)
+       if (existingProxy) {
+          return existingProxy
+        }
+       */
+      // console.log(state1 === state2);
+
+
       const state1 = reactive(data)
-      const state2 = reactive(data)
+      const state2 = reactive(state1)
+      console.log(state1 === state2)
 
-      console.log(state1 === state2);
+      state1.id = 2
 
+      console.log(state1, state2);
 
     </script>
   </body>
