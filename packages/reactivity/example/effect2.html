@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { reactive, effect } from '../dist/reactivity.esm-bundler.js'
+
+      const data = { flag: true, name: 'Tom', id: 1 }
+
+      const state = reactive(data)
+
+      effect(() => {
+        console.log('render')
+        app.innerHTML = state.flag ? state.id : state.name
+      })
+
+      setTimeout(() => {
+        state.flag = false
+
+        setTimeout(() => {
+
+          // 修改id 原则上 DOM 不更新
+          state.id = 100
+        }, 2000)
+
+      }, 3000)
+    </script>
+  </body>
+</html>

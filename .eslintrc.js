@@ -11,5 +11,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module'
   },
-  rules: {}
+  rules: {
+    '@typescript-eslint/no-this-alias': ['off']
+  }
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+  <div id="app"></div>
+    <script type="module">
+      import { reactive, effect } from '../dist/reactivity.esm-bundler.js'
+
+      const data = { name: 'Tom', id: 1 }
+
+      const state = reactive(data)
+
+      effect(() => {
+        console.log('render')
+        app.innerHTML = state.id
+      })
+
+      setTimeout(() => {
+        // state.name = 'Jack'
+        state.id =  100
+        state.id =  200
+      }, 3000)
+    </script>
+  </body>
+</html>

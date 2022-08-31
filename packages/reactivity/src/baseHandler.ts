@@ -1,4 +1,5 @@
 import { Target, readonly, reactive, ReactiveFlags } from './reactive'
+import { track, trigger } from './effect'
 import { hasChanged, isObject } from '@vue/shared'
 
 const get = createGetter()
@@ -9,8 +10,10 @@ function createGetter(isReadonly = false, shllow = false) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return true
     }
-
     const res = Reflect.get(target, key, receiver)
+
+    // 取值进行依赖收集
+    track(target, 'get', key)
 
     // isReadonly
 
@@ -30,10 +33,12 @@ function createGetter(isReadonly = false, shllow = false) {
 function createSetter() {
   return function set(target: object, key: string | symbol, value: unknown, receiver: object) {
     const oldValue = target[key]
-    if (hasChanged(value, oldValue)) {
-    }
-
     const result = Reflect.set(target, key, value, receiver)
+
+    if (hasChanged(value, oldValue)) {
+      // 更新
+      trigger(target, 'set', key, value, oldValue)
+    }
 
     return result
   }
