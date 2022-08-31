@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { reactive, effect, effectScope } from '../dist/reactivity.esm-bundler.js'
+
+      const data = { name: 'Tom', id: 1 }
+
+      const state = reactive(data)
+
+      // https://cn.vuejs.org/api/reactivity-advanced.html#effectscope
+      const scope = effectScope()
+
+      // 状态集中管理 ， 全部停止掉
+      // effectScope 需要收集对应effect (依赖收集)
+
+      scope.run(() => {
+        const runner = effect(() => {
+          console.log(state.name, 'Jack')
+        })
+        effect(() => {
+          console.log(state.name, 'Jack')
+        })
+        runner.effect.stop()
+
+        // const innerScope = effectScope(false);
+        // innerScope.run(()=>{
+        //      effect(()=>{
+        //         console.log(state.name,'Jack');
+        //      })
+        // })
+      })
+      // scope.stop();
+      setTimeout(() => {
+        state.name = 'You'
+      }, 1000)
+    </script>
+  </body>
+</html>

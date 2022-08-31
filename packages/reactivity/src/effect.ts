@@ -1,4 +1,5 @@
 import { EffectScope } from './EffectScope'
+import { recordEffectScope } from './effectScope'
 
 export type EffectScheduler = (...args: any[]) => any
 
@@ -34,8 +35,9 @@ export class ReactiveEffect {
   // 默认激活状态
   active = true
 
-  constructor(public fn) {
-    this.fn = fn
+  constructor(public fn, public scheduler?) {
+    // this.fn = fn
+    recordEffectScope(this)
   }
 
   /**
@@ -88,8 +90,16 @@ export class ReactiveEffect {
 
 export function effect<T = any>(fn: () => T, options?: ReactiveEffectOptions) {
   // 实例化
-  const _effect = new ReactiveEffect(fn)
+  const _effect = new ReactiveEffect(fn, options.scheduler)
+
+  // 默认先执行一次
   _effect.run()
+
+  const runner = _effect.run.bind(_effect)
+
+  // 将effect挂载到runner函数上
+  runner.effect = _effect
+  return runner
 }
 
 // 多层级嵌套
