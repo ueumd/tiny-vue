@@ -5,30 +5,55 @@
     <title>Title</title>
   </head>
   <body>
-    <script type="module">
-      const {
-        createRenderer,
-        h,
-        render,
-        Text,
-        Fragment,
-        ref,
-        computed,
-        onBeforeMount,
-        onMounted,
-        onBeforeUpdate,
-        onUpdated,
-        reactive,
-        toRefs,
-        getCurrentInstance,
-        createElementVNode: _createElementVNode,
-        toDisplayString: _toDisplayString,
-        openBlock: _openBlock,
-        createElementBlock: _createElementBlock,
-        provide,
-        inject,
-        Teleport
-      } = VueRuntimeDOM
+    <div id="app"></div>
+    <!--    <script type="module">-->
+    <!--      import {-->
+    <!--        createRenderer,-->
+    <!--        h,-->
+    <!--        render,-->
+    <!--        Text,-->
+    <!--        Fragment,-->
+    <!--        ref,-->
+    <!--        computed,-->
+    <!--        onBeforeMount,-->
+    <!--        onMounted,-->
+    <!--        onBeforeUpdate,-->
+    <!--        onUpdated,-->
+    <!--        reactive,-->
+    <!--        toRefs,-->
+    <!--        getCurrentInstance,-->
+    <!--        // createElementVNode: _createElementVNode,-->
+    <!--        // toDisplayString: _toDisplayString,-->
+    <!--        // openBlock: _openBlock,-->
+    <!--        // createElementBlock: _createElementBlock,-->
+    <!--        provide,-->
+    <!--        inject,-->
+    <!--        Teleport-->
+    <!--      } from '../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js'-->
+    <!--    </script>-->
+
+    <script src="../../../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>
+    <script type="text/javascript">
+      const { createRenderer, h, render, Text } = VueRuntimeDOM
+
+      const renderer = createRenderer({
+        createElement(element) {
+          return document.createElement(element)
+        },
+        setElementText(el, text) {
+          el.innerHTML = text
+        },
+        insert(el, container) {
+          container.appendChild(el)
+        },
+        patchProp(el, key, preValue, nextValue) {
+          console.log(el)
+          console.log(key)
+          console.log(nextValue)
+        }
+      })
+
+      renderer.render(h('h1', { style: { color: 'skyblue' } }, 'Tiny Vue'), app)
     </script>
   </body>
 </html>
