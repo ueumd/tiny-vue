@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { reactive, effect, ref, isRef, toRefs } from '../dist/reactivity.esm-bundler.js'
+
+      const data = { name: 'Tom', id: 1 }
+      const state = reactive(data)
+
+      // 解构出来 再无引用关系
+      // let { name, id } = state
+      let { name, id } = toRefs(state)
+
+      effect(() => {
+        console.log('render')
+        app.innerHTML = name.value + ' - ' + id.value
+      })
+
+      setTimeout(() => {
+        name.value = 'Jack'
+      }, 1000)
+
+      setTimeout(() => {
+        state.name = 'Tom'
+      }, 3000)
+
+    </script>
+  </body>
+</html>

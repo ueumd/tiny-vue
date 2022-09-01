@@ -1,4 +1,4 @@
-import { hasChanged } from '@vue/shared'
+import { hasChanged, isArray } from '@vue/shared'
 import { toReactive } from './reactive'
 import { trackEffects, triggerEffects } from './effect'
 
@@ -11,23 +11,6 @@ export interface Ref<T = any> {
    * autocomplete, so we use a private Symbol instead.
    */
   [RefSymbol]: true
-}
-
-export function isRef(r: any): r is Ref {
-  return !!(r && r.__v_isRef === true)
-}
-
-export function ref(value: unknown) {
-  return createRef(value, false)
-}
-
-export function createRef(rawValue: unknown, shallow: boolean) {
-  if (isRef(rawValue)) {
-    return rawValue
-  }
-
-  // 返回一个类的实例
-  return new RefImpl(rawValue, shallow)
 }
 
 class RefImpl {
@@ -52,5 +35,45 @@ class RefImpl {
       this.rawValue = newValue
       triggerEffects(this.dep)
     }
+  }
+}
+
+export function isRef(r: any): r is Ref {
+  return !!(r && r.__v_isRef === true)
+}
+
+export function ref(value: unknown) {
+  return createRef(value, false)
+}
+
+export function createRef(rawValue: unknown, shallow: boolean) {
+  if (isRef(rawValue)) {
+    return rawValue
+  }
+
+  // 返回一个类的实例
+  return new RefImpl(rawValue, shallow)
+}
+
+export function toRef(object, key) {
+  return new ObjectRefImpl(object, key)
+}
+
+export function toRefs(object) {
+  const ret = isArray(object) ? new Array(object.length) : {}
+  for (const key in object) {
+    ret[key] = toRef(object, key)
+  }
+
+  return ret
+}
+
+class ObjectRefImpl {
+  constructor(public object, public key) {}
+  get value() {
+    return this.object[this.key]
+  }
+  set value(newValue) {
+    this.object[this.key] = newValue
   }
 }
