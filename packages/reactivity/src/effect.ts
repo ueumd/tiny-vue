@@ -88,7 +88,7 @@ export class ReactiveEffect {
   }
 }
 
-export function effect<T = any>(fn: () => T, options?: ReactiveEffectOptions) {
+export function effect<T = any>(fn: () => T, options: ReactiveEffectOptions = {}) {
   // 实例化
   const _effect = new ReactiveEffect(fn, options.scheduler)
 

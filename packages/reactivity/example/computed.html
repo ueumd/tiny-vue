@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { reactive, effect, computed } from '../dist/reactivity.esm-bundler.js'
+
+      const data = { name1: 'Tom', name2: 'Jack' }
+
+      const state = reactive(data)
+
+      const fullName = computed({
+        get() {
+          console.log('runner')
+          return state.name1 + ' - ' + state.name2
+        },
+        set(newValue) {
+          console.log(newValue)
+        }
+      })
+
+      // const fullName2 = computed(() => {
+      //   console.log('runner')
+      //   return state.name1 + state.name2
+      // })
+
+      effect(() => {
+        console.log(fullName)
+        app.innerHTML = fullName.value
+      })
+      //
+      setTimeout(() => {
+        state.name1 = 'Vue'
+      }, 2000)
+    </script>
+  </body>
+</html>
