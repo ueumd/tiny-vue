@@ -6,13 +6,11 @@ const { resolve } = require('path')
 // { _: [ 'reactivity' ], f: 'global' }
 const args = require('minimist')(process.argv.slice(2))
 
-
-const target = args._[0] || 'reactivity'
+const target = args._[0] || 'vue'
 const format = args.f || 'esm-bundler'
 
 // 开发环境只打包某一个
 const pkg = require(resolve(__dirname, `../packages/${target}/package.json`))
-
 
 // 输出的格式
 // iife 立即执行函数  (function(){})()
