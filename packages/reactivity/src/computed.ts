@@ -1,5 +1,5 @@
 import { isFunction, NOOP } from '@vue/shared'
-import { ReactiveEffect } from './effect'
+import { ReactiveEffect, trackEffects, triggerEffects } from './effect'
 
 export type ComputedGetter<T> = (...args: any[]) => T
 export type ComputedSetter<T> = (v: T) => void
@@ -46,11 +46,16 @@ class ComputedRefImpl<T> {
       // 属性变化化会执行调度函数
       if (!this._dirty) {
         this._dirty = true
+
+        // 更新时触发依赖
+        triggerEffects(this.dep)
       }
     })
   }
 
   get value() {
+    trackEffects(this.dep)
+
     if (this._dirty) {
       this._dirty = false
       // 只有属性变化时 才会更新

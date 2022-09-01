@@ -166,6 +166,17 @@ export function track(target, type, key) {
   }
 }
 
+export function trackEffects(dep) {
+  if (activeEffect) {
+    const shouldTrack = !dep.has(activeEffect)
+    if (shouldTrack) {
+      dep.add(activeEffect)
+      // effect 记录对应的dep
+      activeEffect.deps.push(dep)
+    }
+  }
+}
+
 // 更新
 export function trigger(target, type, key, vlaue, oldValue) {
   const depsMap = targetMap.get(target)
@@ -173,17 +184,24 @@ export function trigger(target, type, key, vlaue, oldValue) {
   if (!depsMap) return
 
   // 获取属性对应的effect
-  let effects = depsMap.get(key)
+  const effects = depsMap.get(key)
+  if (effects) {
+    triggerEffects(effects)
+  }
+}
 
+export function triggerEffects(effects) {
   // dead loop
   // 执行之前 拷贝一份执行 不进关联引用
-  if (effects) {
-    effects = new Set(effects)
-  }
+  effects = new Set(effects)
 
   effects.forEach(effect => {
     if (effect !== activeEffect) {
-      effect.run()
+      if (effect.scheduler) {
+        effect.scheduler()
+      } else {
+        effect.run()
+      }
     }
   })
 }
