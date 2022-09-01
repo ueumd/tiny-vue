@@ -93,3 +93,7 @@ export function isReactive(value: unknown): boolean {
 export function isProxy(value: unknown): boolean {
   return isReactive(value) || isReadonly(value)
 }
+
+export function toReactive(value) {
+  return isObject(value) ? reactive(value) : value
+}

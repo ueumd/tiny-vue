@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { reactive, effect, ref, isRef } from '../dist/reactivity.esm-bundler.js'
+
+      // 最终返回的都是RefImpl类的一个实例
+      const state = ref(100)
+
+      effect(() => {
+        console.log('render')
+        console.log(state)
+        app.innerHTML = state.value
+      })
+
+      console.log(isRef(state))
+
+      setTimeout(() => {
+        state.value = 300
+      }, 3000)
+    </script>
+  </body>
+</html>
