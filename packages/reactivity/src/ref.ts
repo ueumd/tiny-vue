@@ -1,4 +1,4 @@
-import { hasChanged, isArray } from '@vue/shared'
+import { hasChanged, isArray } from '@tiny-vue/shared'
 import { toReactive } from './reactive'
 import { trackEffects, triggerEffects } from './effect'
 

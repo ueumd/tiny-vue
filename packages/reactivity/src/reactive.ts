@@ -1,5 +1,5 @@
 import { mutableHandlers } from './baseHandler'
-import { isObject } from '@vue/shared'
+import { isObject } from '@tiny-vue/shared'
 
 export const enum ReactiveFlags {
   SKIP = '__v_skip',

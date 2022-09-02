@@ -44,3 +44,11 @@ export const toNumber = (val: any): any => {
 }
 
 export const hasChanged = (value, oldValue): boolean => !Object.is(value, oldValue)
+
+/**
+ * Boolean attributes should be included if the value is truthy or ''.
+ * e.g. `<select multiple>` compiles to `{ multiple: '' }`
+ */
+export function includeBooleanAttr(value: unknown): boolean {
+  return !!value || value === ''
+}

@@ -1,6 +1,6 @@
 import { Target, readonly, reactive, ReactiveFlags } from './reactive'
 import { track, trigger } from './effect'
-import { hasChanged, isObject } from '@vue/shared'
+import { hasChanged, isObject } from '@tiny-vue/shared'
 
 const get = createGetter()
 const set = createSetter()

@@ -12,6 +12,7 @@ module.exports = {
     sourceType: 'module'
   },
   rules: {
-    '@typescript-eslint/no-this-alias': ['off']
+    '@typescript-eslint/no-this-alias': ['off'],
+    'prefer-rest-params': 0
   }
 }
