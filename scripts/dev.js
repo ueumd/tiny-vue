@@ -6,7 +6,7 @@ const { resolve } = require('path')
 // { _: [ 'reactivity' ], f: 'global' }
 const args = require('minimist')(process.argv.slice(2))
 
-const target = args._[0] || 'vue'
+const target = args._[0] || 'runtime-core'
 const format = args.f || 'esm-bundler'
 
 // 开发环境只打包某一个

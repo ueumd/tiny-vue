@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { h, createRenderer } from '../dist/runtime-core.esm-bundler.js'
+      const renderer = createRenderer({
+        createElement(element) {
+          return document.createElement(element)
+        },
+        setElementText(el, text) {
+          el.textContent = text
+        },
+        insert(el, container) {
+          container.appendChild(el)
+        },
+        patchProp(el, key, preValue, nextValue) {
+          console.log(el)
+          console.log(key)
+          console.log(nextValue)
+        }
+      })
+
+      renderer.render(h('h1', 'hello'), app)
+    </script>
+  </body>
+</html>

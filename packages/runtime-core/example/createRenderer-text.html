@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { h, createRenderer, Text } from '../dist/runtime-core.esm-bundler.js'
+      import { patchProp } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+      const renderer = createRenderer({
+        createElement(element) {
+          return document.createElement(element)
+        },
+        setElementText(el, text) {
+          el.textContent = text
+        },
+        insert(el, container) {
+          container.appendChild(el)
+        },
+        createText: text => {
+          return document.createTextNode(text)
+        },
+        patchProp
+      })
+      // renderer.render(h(Text, 'hello'), app)
+      renderer.render(
+        h('h1', { style: { color: 'red' }, onClick: () => alert(1) }, [h('span', '123'), ' 456']), app)
+    </script>
+  </body>
+</html>

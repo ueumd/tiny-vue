@@ -25,3 +25,5 @@ let renderer
 //
 //   return app
 // }
+
+export { patchProp }

@@ -5,9 +5,11 @@ export function patchStyle(el: Element, prev, next) {
     style[key] = next[key]
   }
 
-  for (const key in prev) {
-    if (next[key] === null) {
-      style[key] = null
+  if (prev) {
+    for (const key in prev) {
+      if (next[key] === null) {
+        style[key] = null
+      }
     }
   }
 }

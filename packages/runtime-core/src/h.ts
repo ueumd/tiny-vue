@@ -1,6 +1,5 @@
 import { isArray, isObject } from '@tiny-vue/shared'
-import { isVNode } from 'vue'
-import { createVNode } from './vnode'
+import { createVNode, isVNode } from './vnode'
 
 // 两个参数
 // h('div', { id: 'foo' })
