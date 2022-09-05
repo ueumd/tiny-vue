@@ -7,6 +7,16 @@ export function isVNode(value) {
 }
 
 /**
+ * 1. 检签名是否相同
+ * 2. key是否相同
+ * @param n1
+ * @param n2
+ */
+export function isSameVNode(n1, n2) {
+  return n1.type === n2.type && n1.key === n2.key
+}
+
+/**
  * https://astexplorer.net/
  * @param type
  * @param props

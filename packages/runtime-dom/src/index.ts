@@ -7,23 +7,25 @@ const rendererOptions = Object.assign(nodeOps, { patchProp }) //浏览器平台�
 // 渲染器
 let renderer
 
-// function ensureRenderer() {
-//   return renderer || (renderer = createRenderer<Node, Element | ShadowRoot>(rendererOptions))
-// }
-//
-// export function render(...args) {
-//   ensureRenderer().render(...args)
-// }
+function ensureRenderer() {
+  return renderer || (renderer = createRenderer(rendererOptions))
+}
 
-// export function createApp(...args) {
-//   const app = ensureRenderer().createApp(...args)
-//
-//   const { mount } = app
-//
-//   // 重写 mount 方法
-//   // app.mount = () => {}
-//
-//   return app
-// }
+export function render(...args) {
+  ensureRenderer().render(...args)
+}
+
+export function createApp(...args) {
+  const app = ensureRenderer().createApp(...args)
+
+  const { mount } = app
+
+  // 重写 mount 方法
+  // app.mount = () => {}
+
+  return app
+}
 
 export { patchProp }
+
+export * from '@tiny-vue/runtime-core'

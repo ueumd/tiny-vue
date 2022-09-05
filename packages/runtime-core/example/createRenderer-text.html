@@ -26,7 +26,11 @@
       })
       // renderer.render(h(Text, 'hello'), app)
       renderer.render(
-        h('h1', { style: { color: 'red' }, onClick: () => alert(1) }, [h('span', '123'), ' 456']), app)
+        h('h1',
+          { style: { color: 'red' }, onClick: () => alert(1) },
+          [h('span', '123'), ' 456']
+        ),
+        app)
     </script>
   </body>
 </html>

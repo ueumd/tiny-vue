@@ -1,5 +1,5 @@
 import { isString, ShapeFlags } from '@tiny-vue/shared'
-import { createVNode, Text } from './vnode'
+import { createVNode, Text, isSameVNode } from './vnode'
 
 export function createRenderer(renderOptions) {
   const {
@@ -66,31 +66,57 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  const processElement = (n1, n2, container) => {
+    if (n1 === null) {
+      mountElement(n2, container)
+    } else {
+      // 更新
+      // patchElement()
+    }
+  }
+
+  /**
+   * 更新逻辑
+   *  1. 前后完全没关系，删除旧的，添加新的
+   *  2. 新旧一样，复用。属性不一样，在对比属性，更新属性
+   *  3. 子节点
+   */
+  const patchElement = () => {}
+
   const patch = (n1, n2, container) => {
     if (n1 === n2) return
 
     const { type, shapeFlag } = n2
 
-    if (n1 === null) {
-      switch (type) {
-        case Text:
-          processText(n1, n2, container)
-          break
-        default:
-          if (shapeFlag && ShapeFlags.ELEMENT) {
-            // 初次渲染
-            mountElement(n2, container)
-          }
-      }
-    } else {
-      // 更新流程
+    // 更新逻辑
+    // 判断两元素是否相同，不相同卸载
+    if (n1 && !isSameVNode(n1, n2)) {
+      // 删除旧节点
+      unmount(n1)
+      n1 = null
     }
+
+    switch (type) {
+      case Text:
+        processText(n1, n2, container)
+        break
+      default:
+        if (shapeFlag && ShapeFlags.ELEMENT) {
+          // 初次渲染
+          processElement(n1, n2, container)
+        }
+    }
+  }
+
+  const unmount = vnode => {
+    hostRemove(vnode.el)
   }
 
   const render = (vnode, container) => {
     if (vnode === null) {
       if (container._vnode) {
         // 卸载
+        unmount(container._vnode)
       }
     } else {
       patch(container._vnode || null, vnode, container)

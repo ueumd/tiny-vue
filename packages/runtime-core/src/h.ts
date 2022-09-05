@@ -22,7 +22,7 @@ import { createVNode, isVNode } from './vnode'
  * @param propOrChildren
  * @param children  文本 | 数组
  */
-export function h(type, propsOrChildren, children = null) {
+export function h(type, propsOrChildren?, children?) {
   const len = arguments.length
   if (len === 2) {
     /**
@@ -34,16 +34,18 @@ export function h(type, propsOrChildren, children = null) {
     if (isObject(propsOrChildren) && !isArray(propsOrChildren)) {
       // 虚拟节点
       if (isVNode(propsOrChildren)) {
-        createVNode(type, null, [propsOrChildren])
+        return createVNode(type, null, [propsOrChildren])
       }
+      // 属性
       return createVNode(type, propsOrChildren)
     } else {
+      // 数组
       return createVNode(type, null, propsOrChildren)
     }
   } else {
     if (len > 3) {
       //截取两个参数之后的参数作为children
-      children = Array.from(arguments).splice(2)
+      children = Array.from(arguments).slice(2)
     } else if (len === 3 && isVNode(children)) {
       // h('div', {}, h('span'))
       children = [children]
