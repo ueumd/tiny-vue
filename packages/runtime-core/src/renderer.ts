@@ -103,6 +103,44 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  // 比较两个子节点差异
+  const patchKeyedChildren = (c1, c2, el) => {
+    let i = 0
+    let e1 = c1.length - 1
+    let e2 = c2.length - 1
+
+    // 从头开始 sync from start
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[i]
+      const n2 = c2[i]
+      if (isSameVNode(n1, n2)) {
+        // 比较两个节点的属性 和 子节点
+        patch(n1, n2, el)
+      } else {
+        break
+      }
+
+      i++
+    }
+    console.log(i, e1, e2)
+
+    // 尾部开始 sync form end
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[e1]
+      const n2 = c2[e2]
+      if (isSameVNode(n1, n2)) {
+        patch(n1, n2, el)
+      } else {
+        break
+      }
+      e1--
+      e2--
+    }
+    console.log(i, e1, e2)
+
+    //
+  }
+
   /**
    * 比较两个虚拟节点的子节点差异
    * @param n1
@@ -145,6 +183,7 @@ export function createRenderer(renderOptions) {
       if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
           // DIFF 算法
+          patchKeyedChildren(c1, c2, el) // 全量对比
         } else {
           // 现在不是数组 （文本 或 空） 删除以前的
           unmountChildren(c1)
