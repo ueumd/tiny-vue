@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { render, h } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+
+      render(h('h1', { style: { color: 'red' } }, 'Hello'), app)
+
+      setTimeout(() => {
+        render(h('h1', { style: { color: 'white', background: 'red' } }), app)
+      }, 2000)
+    </script>
+  </body>
+</html>

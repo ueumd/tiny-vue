@@ -15,25 +15,25 @@ export function createRenderer(renderOptions) {
     // 文本节点 ， 元素中的内容
   } = renderOptions
 
-  const normalize = child => {
-    if (isString(child)) {
+  const normalize = (children, i) => {
+    if (isString(children[i])) {
       // 处理文本 Text
       //  renderer.render(h(Text, 'hello'), app)
-      return createVNode(Text, null, child)
+      const vnode = createVNode(Text, null, children[i])
+      children[i] = vnode
     }
 
-    return child
+    return children[i]
   }
 
   const mountChildren = (children, container) => {
     for (let i = 0; i < children.length; i++) {
-      const child = normalize(children[i])
+      const child = normalize(children, i)
       patch(null, child, container)
     }
   }
 
   const mountElement = (vnode, container) => {
-    console.log(vnode)
     const { type, props, children, shapeFlag } = vnode
 
     // 创建元素 并将真实节点挂载到虚拟节点上
@@ -46,10 +46,10 @@ export function createRenderer(renderOptions) {
       }
     }
 
-    if (shapeFlag && ShapeFlags.TEXT_CHILDREN) {
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       // 文本
       hostSetElementText(el, children)
-    } else if (shapeFlag && ShapeFlags.ARRAY_CHILDREN) {
+    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
       // 子节点
       mountChildren(children, el)
     }
@@ -61,8 +61,15 @@ export function createRenderer(renderOptions) {
   // 处理文本
   const processText = (n1, n2, container) => {
     if (n1 === null) {
-      n2.el = hostCreateText(n2.children)
-      hostInsert(n2.el, container)
+      hostInsert((n2.el = hostCreateText(n2.children)), container)
+    } else {
+      // 文本内容变化
+
+      // 节点复用
+      const el = (n2.el = n1.el)
+      if (n1.children !== n2.children) {
+        hostSetText(el, n2.children)
+      }
     }
   }
 
@@ -71,7 +78,77 @@ export function createRenderer(renderOptions) {
       mountElement(n2, container)
     } else {
       // 更新
-      // patchElement()
+      patchElement(n1, n2)
+    }
+  }
+
+  // 对比属性
+  const patchProps = (oldProps, newProps, el) => {
+    // 用新的盖掉老的
+    for (const key in newProps) {
+      hostPatchProp(el, key, oldProps[key], newProps[key])
+    }
+
+    for (const key in oldProps) {
+      // 旧的有，新的没有，删除
+      if (newProps[key] === null) {
+        hostPatchProp(el, key, oldProps[key], null)
+      }
+    }
+  }
+
+  const unmountChildren = children => {
+    for (let i = 0; i < children.length; i++) {
+      unmount(children[i])
+    }
+  }
+
+  /**
+   * 比较两个虚拟节点的子节点差异
+   * @param n1
+   * @param n2
+   * @param el 当前父节点
+   */
+  const patchChildren = (n1, n2, el) => {
+    const c1 = n1.children
+    const c2 = n2.children
+
+    const prevShapeFlag = n1.shapeFlag // 之前
+    const shapeFlag = n2.shapeFlag // 之后
+
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        // 文本 数组 （删除旧节点，设置文本内容）
+        // 删除所有节点
+        unmountChildren(c1)
+      }
+      if (c1 !== c2) {
+        // 文本 文本（空）  （更新文本）
+        hostSetElementText(el, c2)
+      }
+    } else {
+      // 数组 或 空
+
+      // 数组 与 数组
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // DIFF 算法
+        } else {
+          // 现在不是数组 （文本 或 空） 删除以前的
+          console.log(1111)
+          unmountChildren(c1)
+        }
+      } else {
+        console.log(22222)
+        if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+          // 数组 文本
+          hostSetElementText(el, '')
+        }
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // 数组 文本
+          mountChildren(c2, el)
+        }
+      }
     }
   }
 
@@ -81,7 +158,15 @@ export function createRenderer(renderOptions) {
    *  2. 新旧一样，复用。属性不一样，在对比属性，更新属性
    *  3. 子节点
    */
-  const patchElement = () => {}
+  const patchElement = (n1, n2) => {
+    const el = (n2.el = n1.el)
+    const oldProps = n1.props || {}
+    const newProps = n2.props || {}
+
+    // 对比属性
+    patchProps(oldProps, newProps, el)
+    patchChildren(n1, n2, el)
+  }
 
   const patch = (n1, n2, container) => {
     if (n1 === n2) return
