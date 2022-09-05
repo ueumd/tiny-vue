@@ -108,6 +108,18 @@ export function createRenderer(renderOptions) {
    * @param n1
    * @param n2
    * @param el 当前父节点
+   *
+   *
+   * 新儿子    旧儿子     操作方式
+   * 文本     数组        （删除老儿子，设置文本内容）
+   * 文本     文本        （更新文本即可）
+   * 文本     空          （更新文本即可) 与上面的类似
+   * 数组     数组        （diff算法）
+   * 数组     文本        （清空文本，进行挂载）
+   * 数组     空          （进行挂载） 与上面的类似
+   * 空       数组        （删除所有儿子）
+   * 空       文本        （清空文本）
+   * 空       空          （无需处理）
    */
   const patchChildren = (n1, n2, el) => {
     const c1 = n1.children
@@ -135,11 +147,9 @@ export function createRenderer(renderOptions) {
           // DIFF 算法
         } else {
           // 现在不是数组 （文本 或 空） 删除以前的
-          console.log(1111)
           unmountChildren(c1)
         }
       } else {
-        console.log(22222)
         if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
           // 数组 文本
           hostSetElementText(el, '')
