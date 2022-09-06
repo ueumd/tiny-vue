@@ -2,6 +2,8 @@ import { isString, ShapeFlags } from '@tiny-vue/shared'
 import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
 import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
+import { queueJob } from './scheduler'
+
 export function createRenderer(renderOptions) {
   const {
     insert: hostInsert,
@@ -318,6 +320,7 @@ export function createRenderer(renderOptions) {
 
     // 区分初始化 还是更新
     const componentUpdateFn = () => {
+      console.log('componentUpdateFn')
       if (!instance.isMounted) {
         // 初始化
         const subTree = render.call(state)
@@ -334,7 +337,8 @@ export function createRenderer(renderOptions) {
       }
     }
 
-    const effect = new ReactiveEffect(componentUpdateFn)
+    // 异步更新
+    const effect = new ReactiveEffect(componentUpdateFn, () => queueJob(instance.update))
 
     // 强制更新逻辑保存到组件实例上
     const update = (instance.update = effect.run.bind(effect))
