@@ -33,7 +33,7 @@ export function createRenderer(renderOptions) {
     }
   }
 
-  const mountElement = (vnode, container) => {
+  const mountElement = (vnode, container, anchor) => {
     const { type, props, children, shapeFlag } = vnode
 
     // 创建元素 并将真实节点挂载到虚拟节点上
@@ -55,7 +55,7 @@ export function createRenderer(renderOptions) {
     }
 
     // 都创建完成后，插入元素节点
-    hostInsert(el, container)
+    hostInsert(el, container, anchor)
   }
 
   // 处理文本
@@ -73,9 +73,9 @@ export function createRenderer(renderOptions) {
     }
   }
 
-  const processElement = (n1, n2, container) => {
+  const processElement = (n1, n2, container, anchor) => {
     if (n1 === null) {
-      mountElement(n2, container)
+      mountElement(n2, container, anchor)
     } else {
       // 更新
       patchElement(n1, n2)
@@ -145,7 +145,16 @@ export function createRenderer(renderOptions) {
     if (i > e1) {
       if (i <= e2) {
         while (i <= e2) {
-          patch(null, c2[i], el)
+          // 插入节点时往后插入还是往前插入
+          // A B C -> A B C D  end
+          // A B C -> D A B C  front
+          const nextPos = e2 + 1
+
+          // 参照节点
+          const anchor = nextPos < c2.length ? c2[nextPos].el : null
+
+          // 插入节点
+          patch(null, c2[i], el, anchor)
           i++
         }
       }
@@ -228,7 +237,7 @@ export function createRenderer(renderOptions) {
     patchChildren(n1, n2, el)
   }
 
-  const patch = (n1, n2, container) => {
+  const patch = (n1, n2, container, anchor = null) => {
     if (n1 === n2) return
 
     const { type, shapeFlag } = n2
@@ -248,7 +257,7 @@ export function createRenderer(renderOptions) {
       default:
         if (shapeFlag && ShapeFlags.ELEMENT) {
           // 初次渲染
-          processElement(n1, n2, container)
+          processElement(n1, n2, container, anchor)
         }
     }
   }

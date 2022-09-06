@@ -18,12 +18,12 @@
 
       setTimeout(() => {
         render(h('h1', { style: { color: 'blue', background:'red' }}, [
-          h('li', {key: 'c'}, 'D'),
           h('li', {key: 'a'}, 'A'),
           h('li', {key: 'b'}, 'B'),
-          h('li', {key: 'c'}, 'C')
+          h('li', {key: 'c'}, 'C'),
+          h('li', {key: 'c'}, 'D')
         ]), app)
-      }, 3000)
+      }, 4000)
     </script>
   </body>
 </html>
