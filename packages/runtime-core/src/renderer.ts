@@ -1,5 +1,5 @@
 import { isString, ShapeFlags } from '@tiny-vue/shared'
-import { createVNode, Text, isSameVNode } from './vnode'
+import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
 export function createRenderer(renderOptions) {
   const {
@@ -294,6 +294,14 @@ export function createRenderer(renderOptions) {
     patchChildren(n1, n2, el)
   }
 
+  const processFragment = (n1, n2, container) => {
+    if (n1 === null) {
+      mountChildren(n2.children, container)
+    } else {
+      patchChildren(n1, n2, container)
+    }
+  }
+
   const patch = (n1, n2, container, anchor = null) => {
     if (n1 === n2) return
 
@@ -311,6 +319,8 @@ export function createRenderer(renderOptions) {
       case Text:
         processText(n1, n2, container)
         break
+      case Fragment: // 无用标签
+        processFragment(n1, n2, container)
       default:
         if (shapeFlag && ShapeFlags.ELEMENT) {
           // 初次渲染
