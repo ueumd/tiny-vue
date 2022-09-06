@@ -11,13 +11,14 @@ export function queueJob(job) {
     // 批处理
     resolvedPromise.then(() => {
       isFlushing = false
+
+      // 先拷贝 后清空
       const jobList = queue.slice(0)
+      queue.length = 0
       for (let i = 0; i < jobList.length; i++) {
         const job = jobList[i]
         job()
       }
-
-      queue.length = 0
       jobList.length = 0
     })
   }

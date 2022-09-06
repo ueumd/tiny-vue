@@ -3,6 +3,7 @@ import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
 import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
 import { queueJob } from './scheduler'
+import { initProps } from './componentProps'
 
 export function createRenderer(renderOptions) {
   const {
@@ -306,7 +307,7 @@ export function createRenderer(renderOptions) {
   }
 
   const mountComponent = (vnode, container, anchor) => {
-    const { data = () => ({}), render } = vnode.type
+    const { data = () => ({}), render, props: propOptions } = vnode.type
     const state = reactive(data())
 
     // 组件实例
@@ -315,8 +316,21 @@ export function createRenderer(renderOptions) {
       vnode,
       subTree: null, //渲染组件的内容
       isMounted: false,
-      update: null
+      update: null,
+      propOptions,
+      props: {},
+      attrs: {},
+      proxy: null
     }
+
+    initProps(instance, vnode.props)
+
+    instance.proxy = new Proxy(instance, {
+      get(target, key) {
+        const { state, props } = target
+      },
+      set(target, key, value) {}
+    })
 
     // 区分初始化 还是更新
     const componentUpdateFn = () => {
@@ -345,10 +359,16 @@ export function createRenderer(renderOptions) {
     update()
   }
 
+  const updateComponent = (n1, n2) => {}
+
   // 组件
   const processComponent = (n1, n2, container, anchor) => {
     if (n1 === null) {
+      // 组件挂载
       mountComponent(n2, container, anchor)
+    } else {
+      // 组件更新 props!!!
+      updateComponent(n1, n2)
     }
   }
 
