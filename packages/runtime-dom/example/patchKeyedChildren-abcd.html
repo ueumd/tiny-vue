@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { render, h } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+
+      // 有 key的情况
+      render(h('h1', { style: { color: 'red' }}, [
+        h('li', {key: 'a', style: {color: 'green'}}, 'A'),
+        h('li', {key: 'b'}, 'B'),
+        h('li', {key: 'c'}, 'C')
+      ]), app)
+
+      setTimeout(() => {
+        render(h('h1', { style: { color: 'blue', background:'red' }}, [
+          h('li', {key: 'a'}, 'A'),
+          h('li', {key: 'b'}, 'B'),
+          h('li', {key: 'c'}, 'C'),
+          h('li', {key: 'c'}, 'D')
+        ]), app)
+      }, 4000)
+    </script>
+  </body>
+</html>
