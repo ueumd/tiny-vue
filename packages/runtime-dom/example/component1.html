@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { render, h } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+      const Component = {
+        data() {
+          return {
+            name: 'zs',
+            age: 18
+          }
+        },
+        render() {
+          setTimeout(() => {
+            this.age++
+            // this.age++
+            // this.age++
+            // this.age++
+          }, 3000)
+          return h('div', `${this.name}，今年${this.age}岁了`)
+        }
+      }
+
+      // 组件渲染
+      render(h(Component), app)
+    </script>
+  </body>
+</html>

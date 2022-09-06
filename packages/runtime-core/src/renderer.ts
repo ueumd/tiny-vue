@@ -1,6 +1,7 @@
 import { isString, ShapeFlags } from '@tiny-vue/shared'
 import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
+import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
 export function createRenderer(renderOptions) {
   const {
     insert: hostInsert,
@@ -302,6 +303,51 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  const mountComponent = (vnode, container, anchor) => {
+    const { data = () => ({}), render } = vnode.type
+    const state = reactive(data())
+
+    // 组件实例
+    const instance = {
+      state,
+      vnode,
+      subTree: null, //渲染组件的内容
+      isMounted: false,
+      update: null
+    }
+
+    // 区分初始化 还是更新
+    const componentUpdateFn = () => {
+      if (!instance.isMounted) {
+        // 初始化
+        const subTree = render.call(state)
+
+        // 创建subTree 真实节点
+        patch(null, subTree, container, anchor)
+        instance.subTree = subTree
+        instance.isMounted = true
+      } else {
+        // 更新
+        const subTree = render.call(state)
+        patch(instance.subTree, subTree, container, anchor)
+        instance.subTree = subTree
+      }
+    }
+
+    const effect = new ReactiveEffect(componentUpdateFn)
+
+    // 强制更新逻辑保存到组件实例上
+    const update = (instance.update = effect.run.bind(effect))
+    update()
+  }
+
+  // 组件
+  const processComponent = (n1, n2, container, anchor) => {
+    if (n1 === null) {
+      mountComponent(n2, container, anchor)
+    }
+  }
+
   const patch = (n1, n2, container, anchor = null) => {
     if (n1 === n2) return
 
@@ -322,9 +368,12 @@ export function createRenderer(renderOptions) {
       case Fragment: // 无用标签
         processFragment(n1, n2, container)
       default:
-        if (shapeFlag && ShapeFlags.ELEMENT) {
+        if (shapeFlag & ShapeFlags.ELEMENT) {
+          // 元素
           // 初次渲染
           processElement(n1, n2, container, anchor)
+        } else if (shapeFlag & ShapeFlags.COMPONENT) {
+          processComponent(n1, n2, container, anchor)
         }
     }
   }
