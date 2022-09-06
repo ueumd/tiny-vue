@@ -91,8 +91,8 @@ export function createRenderer(renderOptions) {
 
     for (const key in oldProps) {
       // 旧的有，新的没有，删除
-      if (newProps[key] === null) {
-        hostPatchProp(el, key, oldProps[key], null)
+      if (newProps[key] === undefined) {
+        hostPatchProp(el, key, oldProps[key], undefined)
       }
     }
   }
@@ -138,7 +138,18 @@ export function createRenderer(renderOptions) {
     }
     console.log(i, e1, e2)
 
-    //
+    // common sequence + mount
+    // i 比 e1大 说明有新增
+    // i 和 e2 之间 是新增的部分
+    // patchKeyedChildren-abcd.html
+    if (i > e1) {
+      if (i <= e2) {
+        while (i <= e2) {
+          patch(null, c2[i], el)
+          i++
+        }
+      }
+    }
   }
 
   /**
