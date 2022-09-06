@@ -1,6 +1,6 @@
 import { isString, ShapeFlags } from '@tiny-vue/shared'
 import { createVNode, Text, isSameVNode } from './vnode'
-
+import { getSequence } from './sequence'
 export function createRenderer(renderOptions) {
   const {
     insert: hostInsert,
@@ -122,7 +122,8 @@ export function createRenderer(renderOptions) {
 
       i++
     }
-    console.log(i, e1, e2)
+
+    // console.log(i, e1, e2)
 
     // 尾部开始 sync form end
     while (i <= e1 && i <= e2) {
@@ -136,12 +137,16 @@ export function createRenderer(renderOptions) {
       e1--
       e2--
     }
-    console.log(i, e1, e2)
 
+    // console.log(i, e1, e2)
+
+    // 情况1： 正常顺序
+    // 同序列 挂载
     // common sequence + mount
     // i 比 e1大 说明有新增
     // i 和 e2 之间 是新增的部分
-    // patchKeyedChildren-abcd.html
+    // common-sequence-mount-abcd.html
+    // common-sequence-mount-dabc.html
     if (i > e1) {
       if (i <= e2) {
         while (i <= e2) {
@@ -156,6 +161,58 @@ export function createRenderer(renderOptions) {
           // 插入节点
           patch(null, c2[i], el, anchor)
           i++
+        }
+      }
+    } else if (i > e2) {
+      // 同序列 卸载
+      // common sequence + unmount
+      if (i <= e1) {
+        while (i <= e1) {
+          // 卸载不需要参考节点
+          unmount(c1[i])
+          i++
+        }
+      }
+    }
+
+    // 情况2： 乱序
+    const s1 = i
+    const s2 = i
+    const keyToNewIndexMap = new Map() // key -> newIndex
+    for (let i = s2; i <= e2; i++) {
+      keyToNewIndexMap.set(c2[i].key, i)
+    }
+
+    const toBePatched = e2 - s2 + 1 // 新的总个数
+    const newIndexToOldIndexMap = new Array(toBePatched).fill(0) // 一个记录是否比对过的映射表
+
+    for (let i = s1; i <= e1; i++) {
+      const oldChild = c1[i] // 老的孩子
+      const newIndex = keyToNewIndexMap.get(oldChild.key) // 用老的子节点去新的里面找
+      if (newIndex == undefined) {
+        unmount(oldChild) // 多余的删掉
+      } else {
+        newIndexToOldIndexMap[newIndex - s2] = i + 1 // 用来标记当前所patch过的结果
+        patch(oldChild, c2[newIndex], el)
+      }
+    }
+
+    // 获取最长递增子序列
+    const increment = getSequence(newIndexToOldIndexMap)
+
+    // 需要移动位置
+    let j = increment.length - 1
+    for (let i = toBePatched - 1; i >= 0; i--) {
+      const index = i + s2
+      const current = c2[index] // 找到h
+      const anchor = index + 1 < c2.length ? c2[index + 1].el : null
+      if (newIndexToOldIndexMap[i] === 0) {
+        patch(null, current, el, anchor)
+      } else {
+        if (i != increment[j]) {
+          hostInsert(current.el, el, anchor)
+        } else {
+          j--
         }
       }
     }
