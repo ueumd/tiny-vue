@@ -3,7 +3,8 @@ import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
 import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
 import { queueJob } from './scheduler'
-import { initProps } from './componentProps'
+import { hasPropsChanged, initProps } from './componentProps'
+import { createComponentInstance, setupComponent } from './component'
 
 export function createRenderer(renderOptions) {
   const {
@@ -306,7 +307,7 @@ export function createRenderer(renderOptions) {
     }
   }
 
-  const mountComponent = (vnode, container, anchor) => {
+  const mountComponent2 = (vnode, container, anchor) => {
     const { data = () => ({}), render, props: propOptions } = vnode.type
     const state = reactive(data())
 
@@ -328,8 +329,7 @@ export function createRenderer(renderOptions) {
     instance.proxy = new Proxy(instance, {
       get(target, key) {
         const { state, props } = target
-      },
-      set(target, key, value) {}
+      }
     })
 
     // 区分初始化 还是更新
@@ -359,7 +359,63 @@ export function createRenderer(renderOptions) {
     update()
   }
 
-  const updateComponent = (n1, n2) => {}
+  const mountComponent = (vnode, container, anchor) => {
+    // 1. 创建组件实例
+    const instance = (vnode.components = createComponentInstance(vnode))
+
+    // 2. 实例赋值
+    setupComponent(instance)
+
+    // 3. 创建一个effect
+    setupRenderEffect(instance, container, anchor)
+  }
+
+  const setupRenderEffect = (instance, container, anchor) => {
+    const { render } = instance
+    const componentUpdateFn = () => {
+      if (!instance.isMounted) {
+        // 组件挂载
+        const subTree = render.call(instance.proxy, instance.proxy)
+        patch(null, subTree, container, anchor)
+        instance.subTree = subTree
+        instance.isMounted = true
+      } else {
+        // 组件内部更新
+        const subTree = render.call(instance.proxy, instance.proxy)
+        patch(instance.subTree, subTree, container, anchor)
+        instance.subTree = subTree
+      }
+    }
+
+    // 异步更新
+    // this.count++
+    // this.count++
+    const effect = new ReactiveEffect(componentUpdateFn, () => queueJob(instance.update))
+    const update = (instance.update = effect.run.bind(effect))
+    update()
+  }
+
+  const shouldUpdateComponent = (n1, n2) => {
+    const { props: prevProps, children: prevChildren } = n1
+    const { props: nextProps, children: nextChildren } = n2
+    if (prevProps === nextProps) return false
+    if (prevChildren || nextChildren) {
+      return true
+    }
+    return hasPropsChanged(prevProps, nextProps)
+  }
+
+  const updateComponent = (n1, n2) => {
+    const instance = (n2.component = n1.component)
+
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2
+      instance.update()
+    }
+
+    // 属性更新
+    // updateProps(instance,prevProps,nextProps)
+  }
 
   // 组件
   const processComponent = (n1, n2, container, anchor) => {

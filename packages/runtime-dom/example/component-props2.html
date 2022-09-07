@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { render, Fragment, h } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+      const MyComponent = {
+        props: {
+          address: String
+        },
+        render() {
+          return h(Text, this.address)
+        }
+      }
+      const VueComponent = {
+        data() {
+          return { flag: false }
+        },
+        render() {
+          return h(Fragment, [
+            h('button', { onClick: () => (this.flag = !this.flag) }, 'change'),
+            h(MyComponent, { address: this.flag ? '地球' : '火星' })
+          ])
+        }
+      }
+      render(h(VueComponent), app)
+    </script>
+  </body>
+</html>
