@@ -1,6 +1,10 @@
-import { hasOwn, isFunction, ShapeFlags } from '@tiny-vue/shared'
+import { hasOwn, isFunction, isObject, ShapeFlags } from '@tiny-vue/shared'
 import { initProps } from './componentProps'
-import { reactive } from '@tiny-vue/reactivity'
+import { reactive, proxyRefs } from '@tiny-vue/reactivity'
+
+export let currentInstance = null
+export const setCurrentInstance = instance => (currentInstance = instance)
+export const getCurrentInstance = () => currentInstance
 
 export function createComponentInstance(vnode) {
   const instance = {
@@ -77,6 +81,29 @@ export function setupComponent(instance) {
       return
     }
     instance.data = reactive(data.call(instance.proxy))
+  }
+
+  const setup = type.setup
+  if (setup) {
+    const setupContext = {
+      emit: (event, ...args) => {
+        const eventName = `on${event[0].toUpperCase() + event.slice(1)}`
+        // 找到虚拟节点的属性有存放props
+        const handler = instance.vnode.props[eventName]
+        handler && handler(...args)
+      },
+      attrs: instance.attrs,
+      slots: instance.slots
+    }
+    setCurrentInstance(instance)
+    const setupResult = setup(instance.props, setupContext)
+    setCurrentInstance(null)
+
+    if (isFunction(setupResult)) {
+      instance.render = setupResult
+    } else if (isObject(setupResult)) {
+      instance.setupState = proxyRefs(setupResult)
+    }
   }
 
   // 组件render方法

@@ -29,3 +29,4 @@ export function createApp(...args) {
 export { patchProp }
 
 export * from '@tiny-vue/runtime-core'
+export * from '@tiny-vue/reactivity'

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { render, h, ref } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+
+      const VueComponent = {
+        setup(props, { emit }) {
+          return () => {
+            return h('p', { onClick: () => emit('hello', '123') }, 'hello')
+          }
+        }
+      }
+
+      render(h(VueComponent, { onHello: value => alert(value) }), app)
+    </script>
+  </body>
+</html>
