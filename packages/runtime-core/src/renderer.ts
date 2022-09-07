@@ -1,4 +1,4 @@
-import { isString, ShapeFlags } from '@tiny-vue/shared'
+import { invokeArrayFns, isString, ShapeFlags } from '@tiny-vue/shared'
 import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
 import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
@@ -374,16 +374,34 @@ export function createRenderer(renderOptions) {
     const { render } = instance
     const componentUpdateFn = () => {
       if (!instance.isMounted) {
+        const { bm, m } = instance
+        if (bm) {
+          invokeArrayFns(bm)
+        }
         // 组件挂载
         const subTree = render.call(instance.proxy, instance.proxy)
         patch(null, subTree, container, anchor)
         instance.subTree = subTree
         instance.isMounted = true
+
+        if (m) {
+          invokeArrayFns(m)
+        }
       } else {
         // 组件内部更新
+
+        const { bu, u } = instance
+        if (bu) {
+          invokeArrayFns(bu)
+        }
+
         const subTree = render.call(instance.proxy, instance.proxy)
         patch(instance.subTree, subTree, container, anchor)
         instance.subTree = subTree
+
+        if (u) {
+          invokeArrayFns(u)
+        }
       }
     }
 

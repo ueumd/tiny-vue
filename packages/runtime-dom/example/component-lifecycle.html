@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import {
+        render,
+        h,
+        reactive,
+        computed,
+        toRefs,
+        onBeforeMount,
+        onMounted,
+        onBeforeUpdate,
+        onUpdated,
+        getCurrentInstance
+      } from '../../runtime-dom/dist/runtime-dom.esm-bundler.js'
+
+      const useCounter = () => {
+        const state = reactive({ count: 1 })
+        const handleClick = () => {
+          state.count++
+        }
+
+        const doubleCount = computed(() => {
+          return state.count * 2
+        })
+
+        onBeforeMount(() => {
+          // 生命周期会自动的和当前的组件关联起来
+          let currentInstance = getCurrentInstance()
+          console.log('before mount', currentInstance)
+        })
+        onMounted(() => {
+          let currentInstance = getCurrentInstance()
+          console.log('mounted', currentInstance)
+        })
+        onBeforeUpdate(() => {
+          console.log('beforeUpdate')
+        })
+        onUpdated(() => {
+          console.log('updated')
+        })
+
+        return { state, handleClick, doubleCount }
+      }
+      const VueComponent = {
+        setup() {
+          // 生命周期的钩子只能在setup中使用
+          const { state: counter, handleClick, doubleCount } = useCounter()
+          return {
+            ...toRefs(counter),
+            handleClick,
+            doubleCount
+          }
+        },
+        render() {
+          console.log('render', this.count)
+          return h('p', { onClick: this.handleClick }, this.count.value + ':' + this.doubleCount)
+        }
+      }
+      render(h(VueComponent), app)
+    </script>
+  </body>
+</html>

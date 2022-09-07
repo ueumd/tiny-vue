@@ -1,3 +1,5 @@
 export { h } from './h'
 export { createRenderer } from './renderer'
 export * from './vnode'
+export * from './apiLifecycle'
+export * from './component'
