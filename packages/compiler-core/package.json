@@ -1,0 +1,15 @@
+{
+  "name": "@tiny-vue/compiler-core",
+  "version": "1.0.0",
+  "description": "reactivity",
+  "main": "index.js",
+  "module": "dist/reactivity.esm-bundler.js",
+  "buildOptions": {
+    "name": "VueCompilerCore",
+    "formats": [
+      "cjs",
+      "esm-bundler",
+      "global"
+    ]
+  }
+}
