@@ -1,4 +1,5 @@
 import { NodeTypes } from './ast'
+import { NO } from '@tiny-vue/shared'
 
 function createParserContext(template) {
   return {
@@ -149,6 +150,68 @@ function advanceBySpaces(context) {
   }
 }
 
+function parseAttributeValue(context) {
+  const start = getCursor(context)
+
+  // 取 " || ‘
+  const quote = context.source[0]
+
+  let content
+
+  if (quote === '"' || quote === "'") {
+    advanceBy(context, 1) // "val"
+    const endIndex = context.source.indexOf(quote)
+    content = parseTextData(context, endIndex)
+    advanceBy(context, 1)
+  }
+
+  return {
+    content,
+    loc: getSelection(context, start)
+  }
+}
+
+function parseAttribute(context) {
+  const start = getCursor(context)
+  // 属性的名字
+  const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source)
+
+  // key的名子
+  const name = match[0]
+  advanceBy(context, name.length)
+
+  advanceBySpaces(context) // id = 1
+
+  advanceBy(context, 1)
+
+  // id = ''  id=""
+  const value = parseAttributeValue(context)
+
+  return {
+    type: NodeTypes.ATTRIBUTE,
+    name,
+    value: {
+      type: NodeTypes.TEXT,
+      ...value
+    },
+    loc: getSelection(context, start)
+  }
+}
+
+// 属性
+function parseAttributes(context) {
+  const props = []
+  // <div id='1'>hello</div>
+  while (context.source.length > 0 && !context.source.startsWith('>')) {
+    const prop = parseAttribute(context)
+    props.push(prop)
+
+    // 去空格
+    advanceBySpaces(context)
+  }
+  return props
+}
+
 function parseTag(context) {
   const start = getCursor(context)
 
@@ -165,7 +228,12 @@ function parseTag(context) {
   const tag = match[1]
 
   advanceBy(context, match[0].length)
+
+  // 处理空格 \t \r等
   advanceBySpaces(context)
+
+  // 处理属性
+  const props = parseAttributes(context)
 
   const isSelfClosing = context.source.startsWith('/>')
 
@@ -176,7 +244,7 @@ function parseTag(context) {
     tag: tag,
     isSelfClosing,
     children: [],
-    // props,
+    props,
     loc: getSelection(context, start)
   }
 }
