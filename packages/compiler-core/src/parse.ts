@@ -97,6 +97,44 @@ function parseText(context) {
   }
 }
 
+function parseInterpolation(context) {
+  const start = getCursor(context)
+
+  // {{ }}
+  const closeIndex = context.source.indexOf('}}', 2)
+
+  advanceBy(context, 2)
+
+  const innerStart = getCursor(context)
+  const innerEnd = getCursor(context)
+
+  // 原始内容
+  const rawContentLength = closeIndex - 2
+  const preContent = parseTextData(context, rawContentLength)
+  const content = preContent.trim()
+
+  const startOffset = preContent.indexOf(content)
+  if (startOffset > 0) {
+    advancePositionWithMutation(innerStart, preContent, startOffset)
+  }
+
+  const endOffset = startOffset + content.length
+
+  advancePositionWithMutation(innerEnd, preContent, endOffset)
+
+  advanceBy(context, 2)
+
+  return {
+    type: NodeTypes.INTERPOLATION,
+    content: {
+      type: NodeTypes.SIMPLE_EXPRESSION,
+      content,
+      loc: getSelection(context, innerStart, innerEnd)
+    },
+    loc: getSelection(context, start)
+  }
+}
+
 export function parse(template) {
   // 创建上下文
   const context = createParserContext(template)
@@ -110,7 +148,7 @@ export function parse(template) {
     let node
     const source = context.source
     if (source.startsWith('{{')) {
-      node = 'xxx'
+      node = parseInterpolation(context)
     } else if (source[0] === '<') {
       node = 'qqq'
     }
