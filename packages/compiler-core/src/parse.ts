@@ -13,6 +13,11 @@ function createParserContext(template) {
 function isEnd(context) {
   const source = context.source
 
+  // <div></div> 没有子节点时
+  if (context.source.startsWith('</')) {
+    return true
+  }
+
   // 解析完毕后为空字符串， 表示解析完毕
   return !source
 }
@@ -150,7 +155,13 @@ function parseTag(context) {
   // 解析标签
   const match = /^<\/?([a-z][^ \t\r\n/>]*)/.exec(context.source)
 
-  console.log(match)
+  /**
+   * `<div>123</div>`
+   *
+   * ['<div', 'div', index: 0, input: '<div>123</div>', groups: undefined]
+   *  console.log(match)
+   */
+
   const tag = match[1]
 
   advanceBy(context, match[0].length)
@@ -174,6 +185,10 @@ function parseElement(context) {
   // </div>
   const ele = parseTag(context)
 
+  // 子节点
+  // 递归
+  const children = parseChildren(context)
+
   // <div></div>
   if (context.source.startsWith('</')) {
     parseTag(context)
@@ -181,13 +196,19 @@ function parseElement(context) {
 
   ele.loc = getSelection(context, ele.loc.start)
 
+  // 挂载子节点
+  ele.children = children
   return ele
 }
 
 export function parse(template) {
   // 创建上下文
   const context = createParserContext(template)
+  return parseChildren(context)
+}
 
+// 子节点
+function parseChildren(context) {
   const nodes = []
 
   // < 元素
@@ -209,7 +230,9 @@ export function parse(template) {
     }
 
     nodes.push(node)
-    console.log(nodes)
-    break
+    // console.log(nodes)
+    // break
   }
+
+  return nodes
 }
