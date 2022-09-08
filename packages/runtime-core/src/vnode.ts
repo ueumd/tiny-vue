@@ -58,5 +58,46 @@ export function createVNode(type, props, children = null, patchFlag = 0) {
     vnode.shapeFlag |= type
   }
 
+  // 有动态节点
+  if (currentBlock && vnode.patchFlag > 0) {
+    currentBlock.push(vnode)
+  }
+
   return vnode
 }
+
+let currentBlock = null
+
+/**
+ * 用数组来收集多个动态节点
+ */
+export function openBlock() {
+  currentBlock = []
+}
+
+/**
+ * 收集动态节点
+ * @param vnode
+ */
+export function setupBlock(vnode) {
+  vnode.dynamicChildren = currentBlock
+  currentBlock = null
+  return vnode
+}
+
+/**
+ *
+ * @param type
+ * @param props
+ * @param children
+ * @param patchFlag 动态节点标识
+ */
+export function createElementBlock(type, props, children, patchFlag) {
+  return setupBlock(createVNode(type, props, children, patchFlag))
+}
+
+export function toDisplayString(val) {
+  return isString(val) ? val : val == null ? '' : isObject(val) ? JSON.stringify(val) : String(val)
+}
+
+export { createVNode as createElementVNode }

@@ -1,4 +1,4 @@
-import { invokeArrayFns, isString, ShapeFlags } from '@tiny-vue/shared'
+import { invokeArrayFns, isString, PatchFlags, ShapeFlags } from '@tiny-vue/shared'
 import { createVNode, Text, Fragment, isSameVNode } from './vnode'
 import { getSequence } from './sequence'
 import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
@@ -283,6 +283,12 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  const patchBlockChildren = (n1, n2) => {
+    for (let i = 0; i < n2.dynamicChildren.length; i++) {
+      patchElement(n1.dynamicChildren[i], n2.dynamicChildren[i])
+    }
+  }
+
   /**
    * 更新逻辑
    *  1. 前后完全没关系，删除旧的，添加新的
@@ -294,9 +300,24 @@ export function createRenderer(renderOptions) {
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
 
-    // 对比属性
-    patchProps(oldProps, newProps, el)
-    patchChildren(n1, n2, el)
+    const { patchFlag } = n2
+
+    // class
+    if (patchFlag & PatchFlags.CLASS) {
+      if (oldProps.class != newProps.class) {
+        hostPatchProp(el, 'class', null, newProps.class)
+      }
+      // ...
+    } else {
+      // 对比属性
+      patchProps(oldProps, newProps, el)
+    }
+
+    if (n2.dynamicChildren) {
+      patchBlockChildren(n1, n2)
+    } else {
+      patchChildren(n1, n2, el)
+    }
   }
 
   const processFragment = (n1, n2, container) => {

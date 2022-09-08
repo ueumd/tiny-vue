@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="../dist/runtime-dom.global.js"></script>
+    <script>
+      const {
+        createRenderer,
+        h,
+        render,
+        Text,
+        Fragment,
+        ref,
+        computed,
+        onBeforeMount,
+        onMounted,
+        onBeforeUpdate,
+        onUpdated,
+        reactive,
+        toRefs,
+        getCurrentInstance,
+        createElementVNode: _createElementVNode,
+        toDisplayString: _toDisplayString,
+        openBlock: _openBlock,
+        createElementBlock: _createElementBlock,
+        createTextVNode: _createTextVNode,
+        renderList: _renderList
+      } = VueRuntimeDOM
+
+      const VueComponent = {
+        setup() {
+          const state = reactive({
+            name: 'Tom',
+            id: 1000,
+            flag: true
+          })
+          setTimeout(() => {
+            state.name = 'Jack'
+          }, 2000)
+          return {
+            state
+          }
+        },
+        render(_ctx) {
+          const vnode =
+            (_openBlock(),
+            _createElementBlock('div', null, [
+              _createElementVNode('h1', null, 'Hello World!'),
+              _createElementVNode('h3', null, _toDisplayString(_ctx.state.name), 1 /* TEXT */)
+            ]))
+          console.log(vnode)
+          return vnode
+        }
+      }
+      render(h(VueComponent), app)
+    </script>
+  </body>
+</html>
