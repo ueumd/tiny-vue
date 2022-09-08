@@ -135,6 +135,55 @@ function parseInterpolation(context) {
   }
 }
 
+// 匹配空格
+function advanceBySpaces(context) {
+  const match = /^[ \t\r\n]+/.exec(context.source)
+  if (match) {
+    // 匹配后删除空格
+    advanceBy(context, match[0].length)
+  }
+}
+
+function parseTag(context) {
+  const start = getCursor(context)
+
+  // 解析标签
+  const match = /^<\/?([a-z][^ \t\r\n/>]*)/.exec(context.source)
+
+  console.log(match)
+  const tag = match[1]
+
+  advanceBy(context, match[0].length)
+  advanceBySpaces(context)
+
+  const isSelfClosing = context.source.startsWith('/>')
+
+  advanceBy(context, isSelfClosing ? 2 : 1)
+
+  return {
+    type: NodeTypes.ELEMENT,
+    tag: tag,
+    isSelfClosing,
+    children: [],
+    // props,
+    loc: getSelection(context, start)
+  }
+}
+
+function parseElement(context) {
+  // </div>
+  const ele = parseTag(context)
+
+  // <div></div>
+  if (context.source.startsWith('</')) {
+    parseTag(context)
+  }
+
+  ele.loc = getSelection(context, ele.loc.start)
+
+  return ele
+}
+
 export function parse(template) {
   // 创建上下文
   const context = createParserContext(template)
@@ -150,7 +199,7 @@ export function parse(template) {
     if (source.startsWith('{{')) {
       node = parseInterpolation(context)
     } else if (source[0] === '<') {
-      node = 'qqq'
+      node = parseElement(context)
     }
 
     // 文本
