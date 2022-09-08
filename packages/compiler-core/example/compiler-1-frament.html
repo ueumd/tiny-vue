@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { compile } from '../dist/compiler-core.esm-bundler.js'
+      // const r = compile(`<div></div>  `)
+      const r = compile(`<div></div><h1></h1>`)
+      console.log(r)
+    </script>
+  </body>
+</html>

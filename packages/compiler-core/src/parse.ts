@@ -1,5 +1,4 @@
 import { NodeTypes } from './ast'
-import { NO } from '@tiny-vue/shared'
 
 function createParserContext(template) {
   return {
@@ -272,7 +271,19 @@ function parseElement(context) {
 export function parse(template) {
   // 创建上下文
   const context = createParserContext(template)
-  return parseChildren(context)
+
+  const start = getCursor(context)
+  return createRoot(parseChildren(context), getSelection(context, start))
+
+  // return parseChildren(context)
+}
+
+function createRoot(children, loc) {
+  return {
+    type: NodeTypes.ROOT, // Fragment
+    children,
+    loc
+  }
 }
 
 // 子节点
@@ -302,5 +313,22 @@ function parseChildren(context) {
     // break
   }
 
-  return nodes
+  // return nodes
+
+  /**
+   * fragment
+   * <div>hello</div>  </div>后有空多个空格
+   */
+  nodes.forEach((node, i) => {
+    if (node.type === NodeTypes.TEXT) {
+      // 不是文本内容
+      if (!/[^\t\r\n\f ]/.test(node.content)) {
+        // 清空
+        nodes[i] = null
+      }
+    }
+  })
+
+  // 把为null的过滤掉
+  return nodes.filter(Boolean)
 }
