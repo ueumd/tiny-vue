@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="text/x-template" id="template1">
+      <div @Click="change" class="test">{{counter}}方式1</div>
+    </script>
+    <script type="module">
+      import { compile, createApp, ref, h } from '../dist/vue.esm-bundler.js'
+      const render = compile('#template1', {}, false)
+
+      const App = {
+        setup() {
+          const counter = ref(1)
+          return {
+            counter,
+            change: () => {
+              counter.value++
+            }
+          }
+        },
+        render() {
+          return render(this) //这里绑定
+        }
+      }
+
+      createApp(App).mount('#app1')
+    </script>
+  </body>
+</html>
