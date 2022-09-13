@@ -24,7 +24,7 @@ export function isSameVNode(n1, n2) {
  * @param children
  * @param patchFlag
  */
-export function createVNode(type, props, children = null, patchFlag = 0) {
+export function createVNode(type: any, props?: any, children?: string | Array<any>, patchFlag = 0) {
   // 组合方案 shapeFlag  我想知道一个元素中包含的是多个儿子还是一个儿子  标识
   const shapeFlag = isString(type)
     ? ShapeFlags.ELEMENT

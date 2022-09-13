@@ -1,5 +1,15 @@
 import { NodeTypes } from './ast'
 
+//状态机的模式，根据这些模式来决定解析标签的具体规则
+export const enum TextModes {
+  //          | 是否解析标签 | 是否支持解析HTML实体
+  DATA, //    |    ✔        |     ✔
+  RCDATA, //  |    ✘        |     ✔
+  RAWTEXT, // |    ✘        |     ✘
+  CDATA, // |    ✘        |     ✘
+  ATTRIBUTE_VALUE
+}
+
 function createParserContext(template) {
   return {
     line: 1,
@@ -268,7 +278,7 @@ function parseElement(context) {
   return ele
 }
 
-export function parse(template) {
+export function baseParse(template) {
   // 创建上下文
   const context = createParserContext(template)
 
@@ -282,7 +292,8 @@ function createRoot(children, loc) {
   return {
     type: NodeTypes.ROOT, // Fragment
     children,
-    loc
+    loc,
+    helpers: []
   }
 }
 

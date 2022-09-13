@@ -1,5 +1,5 @@
 {
-  "name": "@tiny-vue/compiler-core",
+  "name": "@tiny-vue/compiler-dom",
   "version": "1.0.0",
   "description": "reactivity",
   "main": "index.js",

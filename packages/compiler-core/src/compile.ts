@@ -1,10 +1,10 @@
-import { parse } from './parse'
+import { baseParse } from './parse'
 import { transform } from './transform'
 import { transformExpression } from './transforms/transformExpression'
 import { generate } from './codegen'
 
-export function compile(template, options = {}) {
-  const ast = parse(template)
+export function baseCompile(template, options = {}) {
+  const ast = baseParse(template)
 
   //将template AST 语法树转换成 JavaScript AST语法树
   transform(

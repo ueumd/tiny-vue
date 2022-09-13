@@ -5,6 +5,7 @@ import { reactive, ReactiveEffect } from '@tiny-vue/reactivity'
 import { queueJob } from './scheduler'
 import { hasPropsChanged, initProps } from './componentProps'
 import { createComponentInstance, setupComponent } from './component'
+import { createAppAPI } from './createApp'
 
 export function createRenderer(renderOptions) {
   const {
@@ -515,6 +516,7 @@ export function createRenderer(renderOptions) {
   }
 
   return {
-    render
+    render,
+    createApp: createAppAPI(render)
   }
 }

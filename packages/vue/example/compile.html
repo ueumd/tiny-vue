@@ -6,12 +6,13 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="text/x-template" id="template1">
+    <script type="text/x-template" id="temp">
       <div @Click="change" class="test">{{counter}}方式1</div>
     </script>
     <script type="module">
       import { compile, createApp, ref, h } from '../dist/vue.esm-bundler.js'
-      const render = compile('#template1', {}, false)
+
+      const render = compile('#temp', {}, false)
 
       const App = {
         setup() {
@@ -28,7 +29,7 @@
         }
       }
 
-      createApp(App).mount('#app1')
+      createApp(App).mount('#app')
     </script>
   </body>
 </html>

@@ -1,12 +1,14 @@
 export * from './patchFlags'
 export * from './shapeFlags'
-
+export * from './domTagConfig'
 export const NOOP = () => {}
 
 /**
  * Always return false.
  */
 export const NO = () => false
+
+export const extend = Object.assign
 
 const onRE = /^on[^a-z]/
 export const isOn = (key: string) => onRE.test(key)
@@ -53,4 +55,24 @@ export const hasChanged = (value, oldValue): boolean => !Object.is(value, oldVal
  */
 export function includeBooleanAttr(value: unknown): boolean {
   return !!value || value === ''
+}
+
+export function makeMap(str: string, expectsLowerCase?: boolean): (key: string) => boolean {
+  const map: Record<string, boolean> = Object.create(null)
+  const list: Array<string> = str.split(',')
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true
+  }
+  return expectsLowerCase ? val => !!map[val.toLowerCase()] : val => !!map[val]
+}
+
+
+/**
+ * 拿到对象的 rawType
+ * [Object Object]    rawType=object
+ * @param value 原对象
+ * @returns rawType
+ */
+export function toRawType(value) {
+  return toTypeString(value).slice(8, -1)
 }

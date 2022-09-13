@@ -3,7 +3,6 @@
   "private": "true",
   "version": "1.0.0",
   "main": "index.js",
-  "module": "dist/tiny-vue.esm-bundler.js",
   "buildOptions": {
     "name": "TinyVue",
     "formats": [

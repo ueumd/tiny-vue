@@ -1,6 +1,7 @@
 import { hasOwn, isFunction, isObject, ShapeFlags } from '@tiny-vue/shared'
 import { initProps } from './componentProps'
 import { reactive, proxyRefs } from '@tiny-vue/reactivity'
+import { NOOP } from '@tiny-vue/shared'
 
 export let currentInstance = null
 export const setCurrentInstance = instance => (currentInstance = instance)
@@ -107,7 +108,50 @@ export function setupComponent(instance) {
   }
 
   // 组件render方法
+  // if (!instance.render) {
+  //   instance.render = type.render
+  // }
+
+  finishComponentSetup(instance, false)
+}
+
+//组件安装完成的处理
+function finishComponentSetup(instance, isSSR) {
+  const Component = instance.vnode
+  const { render } = Component.type
+
+  // 如果执行完setup发现没有instance.render或者setup是空的,
   if (!instance.render) {
-    instance.render = type.render
+    // 执行组件的render并值给instance.render
+    instance.render = render
+
+    // 如果组件也没有写render函而是写的template => 就要执行模板编译把template编译成render函数
+    //如果当前是SSR服务端渲染直接跳过
+    if (!render && !isSSR) {
+      //如果组件选项存在template,调用编译器生成render函数
+      if (compile && Component.template) {
+        //赋值给render选项
+        Component.render = compile(Component.template, {}, Component.isGlobal)
+        //Component.isGlobal这个是我自己加的一个变量，为了区分当前引入mini-vue3的环境
+      }
+    }
+
+    instance.render = Component.type.render || NOOP
   }
+
+  //applyOptions 此处需要创建vue2支持的optionsApi beforeCreated钩子在这里执行
+  setCurrentInstance(instance) //必须要设置当前实例，使在options中能够获取上下文
+  // pauseTracking() //options中响应式变量需要暂停依赖收集
+  // applyOptions(instance)
+  // enableTracking() //执行完成后开启依赖收集
+  setCurrentInstance(null) //执行完后需要设置为空
+}
+
+type CompileFunction = (template: string | object, options?, isGlobal?: boolean) => any
+
+let compile: CompileFunction
+
+//注册运行时的编译器
+export function registerRuntimeCompiler(_compile: any) {
+  compile = _compile
 }

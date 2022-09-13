@@ -12,7 +12,7 @@ function ensureRenderer() {
 }
 
 export function render(...args) {
-  ensureRenderer().render(...args)
+  return ensureRenderer().render(...args)
 }
 
 export function createApp(...args) {
