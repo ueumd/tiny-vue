@@ -23,9 +23,11 @@
         const runner = effect(() => {
           console.log(state.name, 'Jack')
         })
+
         effect(() => {
           console.log(state.name, 'Jack')
         })
+
         runner.effect.stop()
 
         // const innerScope = effectScope(false);
@@ -35,6 +37,7 @@
         //      })
         // })
       })
+
       // scope.stop();
       setTimeout(() => {
         state.name = 'You'

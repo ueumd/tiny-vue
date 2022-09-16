@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <button id="app">Stop</button>
+    <script type="module">
+      import { watchEffect, ref, effectScope } from '../dist/runtime-core.esm-bundler.js'
+
+      // https://cn.vuejs.org/api/reactivity-advanced.html#effectscope
+      const scope = effectScope()
+
+      const counter = ref(0)
+
+      setInterval(() => {
+        counter.value++
+      }, 2000)
+
+      scope.run(() => {
+        watchEffect(() => {
+          console.log(`counter: ${counter.value}`)
+        })
+      })
+
+      app.onclick = function () {
+        scope.stop()
+      }
+    </script>
+  </body>
+</html>
